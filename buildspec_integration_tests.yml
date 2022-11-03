@@ -1,0 +1,24 @@
+version: 0.2
+
+env:
+  secrets-manager:
+    # key: secret-id:json-key:version-stage:version-id
+    # GITHUB_TOKEN: secret-id:json-key:version-stage:version-id
+    GITHUB_TOKEN: xxxx
+
+phases:
+  pre_build: # get test-runer repo
+    on-failure: ABORT
+    commands:
+      - git clone https://oauth2:$GITHUB_TOKEN@github.com/gzbd/aws-codebuild-test-runner.git
+  build: #  build local image of the app, and override the image in docker-compose, run tests
+    on-failure: ABORT
+    commands:
+      - $(aws ecr get-login --no-include-email --region eu-central-1)
+      - cat main.go
+      - docker build -t aws-codebuild-test-service .
+      - cd aws-codebuild-test-runner
+      - source ./default_env_vars
+        # override TEST_RUNNER_SERVICE to use image just built
+      - TEST_SERVICE_IMAGE=aws-codebuild-test-service docker-compose --project-name src run integration_tests
+      - docker-compose --project-name src down
