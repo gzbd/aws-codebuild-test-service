@@ -1,0 +1,20 @@
+version: 0.2
+
+env:
+  variables:
+    GITHUB_TOKEN: "xxx"
+
+phases:
+  pre_build: # get test-runer repo
+    on-failure: ABORT
+    commands:
+      - git clone https://oauth2:$GITHUB_TOKEN@github.com/gzbd/aws-codebuild-test-runner.git
+  build: #  build local image of the app, and override the image in docker-compose, run tests
+    on-failure: ABORT
+    commands:
+      - cat main.go
+      - docker build -t aws-codebuild-test-service .
+      - cd aws-codebuild-test-runner
+      - source ./default_env_vars
+      - docker-compose run integration_tests
+      - docker-compose down
