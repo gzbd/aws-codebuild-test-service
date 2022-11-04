@@ -15,9 +15,11 @@ phases:
   build: #  build local image of the app, and override the image in docker-compose, run tests
     on-failure: ABORT
     commands:
+      - $(aws ecr get-login --no-include-email --region eu-central-1)
       - cat main.go
       - docker build -t aws-codebuild-test-service .
       - cd aws-codebuild-test-runner
       - source ./default_env_vars
-      - docker-compose run integration_tests
-      - docker-compose down
+        # override TEST_RUNNER_SERVICE to use image just built
+      - TEST_SERVICE_IMAGE=aws-codebuild-test-service docker-compose --project-name src run integration_tests
+      - docker-compose --project-name src down
