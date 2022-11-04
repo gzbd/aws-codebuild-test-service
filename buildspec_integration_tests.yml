@@ -1,8 +1,11 @@
 version: 0.2
 
 env:
-  variables:
-    GITHUB_TOKEN: "xxx"
+  secrets-manager:
+    # key: secret-id:json-key:version-stage:version-id
+    # GITHUB_TOKEN: secret-id:json-key:version-stage:version-id
+    # GITHUB_TOKEN: arn:aws:secretsmanager:eu-west-1:175545130244:secret:shared/github/token/brainly-integration-MJ5Fod
+    GITHUB_TOKEN: arn:aws:secretsmanager:eu-central-1:481992040149:secret:github-token-rQ7RYS
 
 phases:
   pre_build: # get test-runer repo
